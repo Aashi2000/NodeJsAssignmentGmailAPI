@@ -50,7 +50,7 @@ app.get('/', async (req, res) => {
     return JSON.parse(content);
   }
   
-  
+
   // Get messages which have no prior replies
   async function getUnrepliedMessages(auth) {
     const gmail = google.gmail({version: 'v1', auth});
@@ -72,19 +72,18 @@ app.get('/', async (req, res) => {
     });
 
 
-    const subject = res.data.payload.headers.find(
+    const sub = res.data.payload.headers.find(
       (header) => header.name === 'Subject'
     ).value;
     const from = res.data.payload.headers.find(
       (header) => header.name === 'From'
     ).value;
-
-
+    console.log(from)
     const replyTo = from.match(/<(.*)>/)[1];
-    const replySubject = subject.startsWith('Re:') ? subject : `Re: ${subject}`; //Re: new work has arrived
+    const replySubject = sub.startsWith('Re:') ? sub: `Re: ${sub}`; //Re: new work has arrived
     const replyBody = `Hi,\n\nI'm currently on vacation and will get back to you soon.\n\nRegards,\n Aashi Pradhan`;
-
-
+    
+      
     const rawMessage = [
       `From: me`,
       `To: ${replyTo}`,
@@ -95,10 +94,10 @@ app.get('/', async (req, res) => {
       replyBody,
     ].join('\n');
 
-
+    
     const encodedMessage = Buffer.from(rawMessage).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
-
+    
+    
     await gmail.users.messages.send({
       userId: 'me',
       requestBody: {
